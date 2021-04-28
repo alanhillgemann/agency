@@ -14,6 +14,14 @@ def create_app(test_config=None):
         '''Handle GET requests'''
         return 'running'
 
+    @app.route('/actors')
+    def get_actors():
+        '''Handle GET requests for actors'''
+        actors = Actor.query.all()
+        return jsonify({
+            'actors': [actor.format() for actor in actors]
+        })
+
     return app
 
 APP = create_app()
