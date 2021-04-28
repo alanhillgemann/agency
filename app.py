@@ -114,6 +114,17 @@ def create_app(test_config=None):
             'movie': movie.format()
         })
 
+    @app.route('/movies/<int:movie_id>', methods=['DELETE'])
+    def delete_movie(movie_id):
+        '''Handle DELETE requests for movies by id'''
+        movie = Movie.query.get(movie_id)
+        if movie is None:
+            abort(404)
+        movie.delete()
+        return jsonify({
+            'deleted': movie_id
+        })
+
     # ERROR HANDLERS
 
     @app.errorhandler(400)
