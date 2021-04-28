@@ -2,6 +2,7 @@ from flask import abort, Flask, jsonify, request
 from flask_cors import CORS
 from helpers import validate_schema
 from models import Actor, Movie, Performance, setup_db
+from sqlalchemy import func
 
 
 def create_app(test_config=None):
@@ -74,6 +75,27 @@ def create_app(test_config=None):
         movies = Movie.query.all()
         return jsonify({
             'movies': [movie.format() for movie in movies]
+        })
+
+    @app.route('/movies', methods=['POST'])
+    def post_movie():
+        '''Handle POST requests for movies'''
+        body = request.get_json()
+        if not validate_schema(body, type='post-movie'):
+            abort(422)
+        title = body["title"]
+        movie = Movie.query.filter(
+            func.lower(Movie.title) == title.lower()
+        ).first()
+        if movie is not None:
+            abort(422)
+        movie = Movie(
+            title=title,
+            release_date=body["release_date"]
+        )
+        movie.insert()
+        return jsonify({
+            'movie': movie.format()
         })
 
     # ERROR HANDLERS
