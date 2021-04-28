@@ -30,6 +30,11 @@ def validate_schema(data, type):
                 And(Use(str), lambda d: datetime.strptime(
                     d, '%Y-%m-%dT%H:%M:%S.%fZ') > datetime.now())
         })
+    elif type == 'post-performance':
+        schema = Schema({
+            'actor_id': And(Use(int), lambda n: 1 <= n),
+            'movie_id': And(Use(int), lambda n: 1 <= n)
+        })
     try:
         schema.validate(data)
         return True

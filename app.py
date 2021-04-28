@@ -133,6 +133,35 @@ def create_app(test_config=None):
             'performances': [performance.format() for performance in performances]
         })
 
+    @app.route('/performances', methods=['POST'])
+    def post_performance():
+        '''Handle POST requests for performances'''
+        body = request.get_json()
+        if not validate_schema(body, type='post-performance'):
+            abort(422)
+        actor_id = body["actor_id"]
+        movie_id = body["movie_id"]
+        actor = Actor.query.filter(Actor.id == actor_id).first()
+        if actor is None:
+            abort(422)
+        movie = Movie.query.filter(Movie.id == movie_id).first()
+        if movie is None:
+            abort(422)
+        performance = Performance.query.filter(
+            Performance.actor_id == actor_id,
+            Performance.movie_id == movie_id
+        ).first()
+        if performance is not None:
+            abort(422)
+        performance = Performance(
+            actor_id=actor_id,
+            movie_id=movie_id
+        )
+        performance.insert()
+        return jsonify({
+            'performance': performance.format()
+        })
+
     # ERROR HANDLERS
 
     @app.errorhandler(400)
