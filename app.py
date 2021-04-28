@@ -68,6 +68,14 @@ def create_app(test_config=None):
             'deleted': actor_id
         })
 
+    @app.route('/movies')
+    def get_movies():
+        '''Handle GET requests for movies'''
+        movies = Movie.query.all()
+        return jsonify({
+            'movies': [movie.format() for movie in movies]
+        })
+
     # ERROR HANDLERS
 
     @app.errorhandler(400)
