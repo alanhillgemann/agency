@@ -29,7 +29,7 @@ def create_app(test_config=None):
     def post_actor():
         '''Handle POST requests for actors'''
         body = request.get_json()
-        if not validate_schema(body, type='actor'):
+        if not validate_schema(body, type='post-actor'):
             abort(422)
         actor = Actor(
             name=body["name"],
@@ -37,6 +37,22 @@ def create_app(test_config=None):
             age=body["age"]
         )
         actor.insert()
+        return jsonify({
+            'actor': actor.format()
+        })
+
+    @app.route('/actors/<int:actor_id>', methods=['PATCH'])
+    def patch_actor(actor_id):
+        '''Handle PATCH requests for actors by id'''
+        body = request.get_json()
+        if not validate_schema(body, type='patch-actor'):
+            abort(422)
+        actor = Actor.query.get(actor_id)
+        if actor is None:
+            abort(404)
+        for key in body.keys():
+            setattr(actor, key, body[key])
+        actor.update()
         return jsonify({
             'actor': actor.format()
         })
