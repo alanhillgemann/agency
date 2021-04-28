@@ -162,6 +162,17 @@ def create_app(test_config=None):
             'performance': performance.format()
         })
 
+    @app.route('/performances/<int:performance_id>', methods=['DELETE'])
+    def delete_performance(performance_id):
+        '''Handle DELETE requests for performances by id'''
+        performance = Performance.query.get(performance_id)
+        if performance is None:
+            abort(404)
+        performance.delete()
+        return jsonify({
+            'deleted': performance_id
+        })
+
     # ERROR HANDLERS
 
     @app.errorhandler(400)
