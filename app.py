@@ -57,6 +57,17 @@ def create_app(test_config=None):
             'actor': actor.format()
         })
 
+    @app.route('/actors/<int:actor_id>', methods=['DELETE'])
+    def delete_actor(actor_id):
+        '''Handle DELETE requests for actors by id'''
+        actor = Actor.query.get(actor_id)
+        if actor is None:
+            abort(404)
+        actor.delete()
+        return jsonify({
+            'deleted': actor_id
+        })
+
     # ERROR HANDLERS
 
     @app.errorhandler(400)
