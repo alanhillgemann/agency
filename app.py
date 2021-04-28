@@ -125,6 +125,14 @@ def create_app(test_config=None):
             'deleted': movie_id
         })
 
+    @app.route('/performances')
+    def get_performances():
+        '''Handle GET requests for performances'''
+        performances = Performance.query.all()
+        return jsonify({
+            'performances': [performance.format() for performance in performances]
+        })
+
     # ERROR HANDLERS
 
     @app.errorhandler(400)

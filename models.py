@@ -55,7 +55,7 @@ class Actor(Base):
             'id': self.id,
             'name': self.name,
             'gender': self.gender,
-            'age': self.age,
+            'age': self.age
         }
 
 
@@ -75,7 +75,7 @@ class Movie(Base):
         return {
             'id': self.id,
             'title': self.title,
-            'release_date': self.release_date,
+            'release_date': self.release_date
         }
 
 
@@ -95,5 +95,5 @@ class Performance(Base):
         return {
             'id': self.id,
             'actor_id': self.actor_id,
-            'movie_id': self.movie_id,
+            'movie_id': self.movie_id
         }
