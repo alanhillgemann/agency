@@ -98,6 +98,22 @@ def create_app(test_config=None):
             'movie': movie.format()
         })
 
+    @app.route('/movies/<int:movie_id>', methods=['PATCH'])
+    def patch_movie(movie_id):
+        '''Handle PATCH requests for movies by id'''
+        body = request.get_json()
+        if not validate_schema(body, type='patch-movie'):
+            abort(422)
+        movie = Movie.query.get(movie_id)
+        if movie is None:
+            abort(404)
+        for key in body.keys():
+            setattr(movie, key, body[key])
+        movie.update()
+        return jsonify({
+            'movie': movie.format()
+        })
+
     # ERROR HANDLERS
 
     @app.errorhandler(400)

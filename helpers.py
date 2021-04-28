@@ -19,8 +19,16 @@ def validate_schema(data, type):
     elif type == 'post-movie':
         schema = Schema({
             'title': And(Use(str), len),
-            'release_date': And(Use(str), lambda d: datetime.strptime(d,
-                        '%Y-%m-%dT%H:%M:%S.%fZ') > datetime.now())
+            'release_date':
+                And(Use(str), lambda d: datetime.strptime(
+                    d, '%Y-%m-%dT%H:%M:%S.%fZ') > datetime.now())
+        })
+    elif type == 'patch-movie':
+        schema = Schema({
+            Optional('title'): And(Use(str), len),
+            Optional('release_date'):
+                And(Use(str), lambda d: datetime.strptime(
+                    d, '%Y-%m-%dT%H:%M:%S.%fZ') > datetime.now())
         })
     try:
         schema.validate(data)
