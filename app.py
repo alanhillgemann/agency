@@ -104,6 +104,14 @@ def create_app(test_config=None):
         body = request.get_json()
         if not validate_schema(body, type='patch-movie'):
             abort(422)
+        title = body.get('title')
+        if title is not None:
+            movie = Movie.query.filter(
+                Movie.id != movie_id,
+                func.lower(Movie.title) == title.lower()
+            ).first()
+        if movie is not None:
+            abort(422)
         movie = Movie.query.get(movie_id)
         if movie is None:
             abort(404)
@@ -130,7 +138,8 @@ def create_app(test_config=None):
         '''Handle GET requests for performances'''
         performances = Performance.query.all()
         return jsonify({
-            'performances': [performance.format() for performance in performances]
+            'performances':
+                [performance.format() for performance in performances]
         })
 
     @app.route('/performances', methods=['POST'])
