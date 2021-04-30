@@ -28,6 +28,17 @@ def create_app(test_config=None):
             'actors': [actor.format() for actor in actors]
         })
 
+    @app.route('/actors/<int:actor_id>')
+    @requires_auth('get:actors')
+    def get_actors_by_id(actor_id):
+        '''Handle GET requests for actors by id'''
+        actor = Actor.query.get(actor_id)
+        if actor is None:
+            abort(404)
+        return jsonify({
+            'actor': actor.format()
+        })
+
     @app.route('/actors', methods=['POST'])
     @requires_auth('post:actors')
     def post_actor():
