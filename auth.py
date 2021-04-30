@@ -9,7 +9,6 @@ AUTH0_DOMAIN = 'alanhillgemann.au.auth0.com'
 ALGORITHMS = ['RS256']
 API_AUDIENCE = 'casting-agency'
 
-## AuthError Exception
 
 class AuthError(Exception):
     '''Handle Auth errors'''
@@ -17,8 +16,6 @@ class AuthError(Exception):
         self.error = error
         self.status_code = status_code
 
-
-## Auth Header
 
 def get_token_auth_header():
     """Obtains the Access Token from the Authorization Header"""
@@ -108,7 +105,8 @@ def verify_decode_jwt(token):
         except jwt.JWTClaimsError:
             raise AuthError({
                 'code': 'invalid_claims',
-                'description': 'Incorrect claims. Please, check the audience and issuer.'
+                'description':
+                    'Incorrect claims. Please, check the audience and issuer.'
             }, 401)
         except Exception:
             raise AuthError({
