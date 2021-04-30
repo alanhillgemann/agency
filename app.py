@@ -1,3 +1,4 @@
+from auth import AuthError, requires_auth
 from flask import abort, Flask, jsonify, request
 from flask_cors import CORS
 from helpers import validate_schema
@@ -19,6 +20,7 @@ def create_app(test_config=None):
         return 'running'
 
     @app.route('/actors')
+    @requires_auth('get:actors')
     def get_actors():
         '''Handle GET requests for actors'''
         actors = Actor.query.all()
@@ -27,15 +29,16 @@ def create_app(test_config=None):
         })
 
     @app.route('/actors', methods=['POST'])
+    @requires_auth('post:actors')
     def post_actor():
         '''Handle POST requests for actors'''
         body = request.get_json()
         if not validate_schema(body, type='post-actor'):
             abort(422)
         actor = Actor(
-            name=body["name"],
-            gender=body["gender"],
-            age=body["age"]
+            name=body['name'],
+            gender=body['gender'],
+            age=body['age']
         )
         actor.insert()
         return jsonify({
@@ -43,6 +46,7 @@ def create_app(test_config=None):
         })
 
     @app.route('/actors/<int:actor_id>', methods=['PATCH'])
+    @requires_auth('patch:actors')
     def patch_actor(actor_id):
         '''Handle PATCH requests for actors by id'''
         body = request.get_json()
@@ -59,6 +63,7 @@ def create_app(test_config=None):
         })
 
     @app.route('/actors/<int:actor_id>', methods=['DELETE'])
+    @requires_auth('delete:actors')
     def delete_actor(actor_id):
         '''Handle DELETE requests for actors by id'''
         actor = Actor.query.get(actor_id)
@@ -70,6 +75,7 @@ def create_app(test_config=None):
         })
 
     @app.route('/movies')
+    @requires_auth('get:movies')
     def get_movies():
         '''Handle GET requests for movies'''
         movies = Movie.query.all()
@@ -78,12 +84,13 @@ def create_app(test_config=None):
         })
 
     @app.route('/movies', methods=['POST'])
+    @requires_auth('post:movies')
     def post_movie():
         '''Handle POST requests for movies'''
         body = request.get_json()
         if not validate_schema(body, type='post-movie'):
             abort(422)
-        title = body["title"]
+        title = body['title']
         movie = Movie.query.filter(
             func.lower(Movie.title) == title.lower()
         ).first()
@@ -91,7 +98,7 @@ def create_app(test_config=None):
             abort(422)
         movie = Movie(
             title=title,
-            release_date=body["release_date"]
+            release_date=body['release_date']
         )
         movie.insert()
         return jsonify({
@@ -99,6 +106,7 @@ def create_app(test_config=None):
         })
 
     @app.route('/movies/<int:movie_id>', methods=['PATCH'])
+    @requires_auth('patch:movies')
     def patch_movie(movie_id):
         '''Handle PATCH requests for movies by id'''
         body = request.get_json()
@@ -123,6 +131,7 @@ def create_app(test_config=None):
         })
 
     @app.route('/movies/<int:movie_id>', methods=['DELETE'])
+    @requires_auth('delete:movies')
     def delete_movie(movie_id):
         '''Handle DELETE requests for movies by id'''
         movie = Movie.query.get(movie_id)
@@ -134,6 +143,7 @@ def create_app(test_config=None):
         })
 
     @app.route('/performances')
+    @requires_auth('get:performances')
     def get_performances():
         '''Handle GET requests for performances'''
         performances = Performance.query.all()
@@ -143,13 +153,14 @@ def create_app(test_config=None):
         })
 
     @app.route('/performances', methods=['POST'])
+    @requires_auth('post:performances')
     def post_performance():
         '''Handle POST requests for performances'''
         body = request.get_json()
         if not validate_schema(body, type='post-performance'):
             abort(422)
-        actor_id = body["actor_id"]
-        movie_id = body["movie_id"]
+        actor_id = body['actor_id']
+        movie_id = body['movie_id']
         actor = Actor.query.filter(Actor.id == actor_id).first()
         if actor is None:
             abort(422)
@@ -172,6 +183,7 @@ def create_app(test_config=None):
         })
 
     @app.route('/performances/<int:performance_id>', methods=['DELETE'])
+    @requires_auth('delete:performances')
     def delete_performance(performance_id):
         '''Handle DELETE requests for performances by id'''
         performance = Performance.query.get(performance_id)
@@ -219,6 +231,15 @@ def create_app(test_config=None):
             'error': 500,
             'message': 'Internal Server Error'
         }), 500
+
+    @app.errorhandler(AuthError)
+    def auth_error(error):
+        '''Handle Auth errors'''
+        return jsonify({
+            'success': False,
+            'error': error.status_code,
+            'message': error.error['description']
+        }), error.status_code
 
     return app
 
