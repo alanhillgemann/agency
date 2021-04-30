@@ -94,6 +94,17 @@ def create_app(test_config=None):
             'movies': [movie.format() for movie in movies]
         })
 
+    @app.route('/movies/<int:movie_id>')
+    @requires_auth('get:movies')
+    def get_movies_by_id(movie_id):
+        '''Handle GET requests for movies by id'''
+        movie = Movie.query.get(movie_id)
+        if movie is None:
+            abort(404)
+        return jsonify({
+            'movie': movie.format()
+        })
+
     @app.route('/movies', methods=['POST'])
     @requires_auth('post:movies')
     def post_movie():
